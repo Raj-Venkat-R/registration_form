@@ -13,11 +13,13 @@ class RegistrationForm extends StatefulWidget {
 }
 
 class _RegistrationFormState extends State<RegistrationForm> {
-  TextEditingController fullName = TextEditingController();
-  TextEditingController eMail = TextEditingController();
-  TextEditingController userName = TextEditingController();
-  TextEditingController password = TextEditingController();
-  TextEditingController confirmPassword = TextEditingController();
+  final TextEditingController fullName = TextEditingController();
+  final TextEditingController eMail = TextEditingController();
+  final TextEditingController userName = TextEditingController();
+  final TextEditingController password = TextEditingController();
+  final TextEditingController confirmPassword = TextEditingController();
+  bool see = true;
+  bool see1 = true;
 
   @override
   void dispose() {
@@ -57,11 +59,15 @@ class _RegistrationFormState extends State<RegistrationForm> {
           backgroundColor: Colors.green,
         ),
       );
-      FirebaseFirestore.instance.collection('users').doc(credential.user?.uid).set({
-        'fullName': fullName.text.trim(),
-        'email': eMail.text.trim(),
-        'username': userName.text.trim(),
-      });
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(credential.user!.uid)
+          .set({
+            'fullName': fullName.text.trim(),
+            'email': eMail.text.trim(),
+            'username': userName.text.trim(),
+            'createdAt': FieldValue.serverTimestamp(),
+          });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -80,15 +86,15 @@ class _RegistrationFormState extends State<RegistrationForm> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-              "Register Here",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontStyle: FontStyle.italic,
-                fontSize: 30,
-                letterSpacing: 2,
-              ),
+            "Register Here",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontStyle: FontStyle.italic,
+              fontSize: 30,
+              letterSpacing: 2,
             ),
+          ),
           Padding(
             padding: const EdgeInsets.only(left: 50, right: 50, top: 20),
             child: Divider(color: Colors.black, thickness: 3),
@@ -155,13 +161,13 @@ class _RegistrationFormState extends State<RegistrationForm> {
           Padding(
             padding: const EdgeInsets.only(left: 50, right: 50, top: 20),
             child: TextField(
+              controller: userName,
               style: TextStyle(
                 color: Colors.black,
                 letterSpacing: 2,
                 fontStyle: FontStyle.normal,
               ),
               cursorColor: Colors.black,
-              controller: userName,
               decoration: InputDecoration(
                 labelText: "Username",
                 labelStyle: TextStyle(
@@ -184,6 +190,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
           Padding(
             padding: const EdgeInsets.only(left: 50, right: 50, top: 20),
             child: TextField(
+              obscureText: see,
               style: TextStyle(
                 color: Colors.black,
                 letterSpacing: 2,
@@ -207,12 +214,24 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   borderSide: BorderSide(color: Colors.black),
                 ),
                 border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    see ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      see = !see;
+                    });
+                  },
+                ),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 50, right: 50, top: 20),
             child: TextField(
+              obscureText: see1,
               style: TextStyle(
                 color: Colors.black,
                 letterSpacing: 2,
@@ -236,6 +255,17 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   borderSide: BorderSide(color: Colors.black),
                 ),
                 border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    see1 ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      see1 = !see1;
+                    });
+                  },
+                ),
               ),
             ),
           ),

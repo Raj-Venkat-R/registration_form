@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:registration_form/home.dart';
 import 'package:registration_form/registration_form.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -14,6 +15,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   TextEditingController eMail = TextEditingController();
   TextEditingController password = TextEditingController();
+  bool see = true;
 
   @override
   void dispose() {
@@ -24,10 +26,17 @@ class _LoginState extends State<Login> {
 
   Future<void> _login() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: eMail.text.trim(),
         password: password.text.trim(),
       );
+      FirebaseFirestore.instance
+          .collection('loginDetails')
+          .doc(credential.user!.uid)
+          .set({
+            'email': eMail.text.trim(),
+            'loggedInAt': FieldValue.serverTimestamp(),
+          });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -102,6 +111,7 @@ class _LoginState extends State<Login> {
           Padding(
             padding: const EdgeInsets.only(left: 50, right: 50),
             child: TextField(
+              obscureText: see,
               style: TextStyle(
                 color: Colors.black,
                 letterSpacing: 2,
@@ -123,6 +133,17 @@ class _LoginState extends State<Login> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.black),
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    see ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      see = !see;
+                    });
+                  },
                 ),
               ),
             ),
